@@ -1,0 +1,195 @@
+<div class="book-create-container">
+  <div class="header">
+    <button (click)="onCancel()" class="btn-back" title="Go back">
+      <i class="icon-back">←</i> Back to List
+    </button>
+    <h1>📖 Add New Book</h1>
+    <p class="subtitle">Fill in the details below to add a new book to your library</p>
+  </div>
+
+  <div class="form-container">
+    <form [formGroup]="bookForm" (ngSubmit)="onSubmit()" novalidate>
+      <!-- Title Field -->
+      <div class="form-group" [class.has-error]="f['title'].invalid && (f['title'].touched || isSubmitted)">
+        <label for="title">
+          Book Title *
+          <span class="char-count" [class.over-limit]="f['title'].value?.length > 200">
+            {{ f['title'].value?.length || 0 }}/200
+          </span>
+        </label>
+        <input
+          type="text"
+          id="title"
+          formControlName="title"
+          placeholder="Enter book title"
+          class="form-control"
+          [class.is-invalid]="f['title'].invalid && (f['title'].touched || isSubmitted)"
+          aria-describedby="titleHelp titleErrors"
+        >
+        <small id="titleHelp" class="form-text">Enter the full title of the book (2-200 characters)</small>
+        
+        <div *ngIf="getFieldErrors('title').length > 0" id="titleErrors" class="error-messages">
+          <div *ngFor="let error of getFieldErrors('title')" class="error-message">
+            ⚠️ {{ error }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Author Field -->
+      <div class="form-group" [class.has-error]="f['author'].invalid && (f['author'].touched || isSubmitted)">
+        <label for="author">
+          Author *
+          <span class="char-count" [class.over-limit]="f['author'].value?.length > 100">
+            {{ f['author'].value?.length || 0 }}/100
+          </span>
+        </label>
+        <input
+          type="text"
+          id="author"
+          formControlName="author"
+          placeholder="Enter author name"
+          class="form-control"
+          [class.is-invalid]="f['author'].invalid && (f['author'].touched || isSubmitted)"
+          aria-describedby="authorHelp authorErrors"
+        >
+        <small id="authorHelp" class="form-text">Full name of the author (2-100 characters)</small>
+        
+        <div *ngIf="getFieldErrors('author').length > 0" id="authorErrors" class="error-messages">
+          <div *ngFor="let error of getFieldErrors('author')" class="error-message">
+            ⚠️ {{ error }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Genre Field -->
+      <div class="form-group" [class.has-error]="f['genre'].invalid && (f['genre'].touched || isSubmitted)">
+        <label for="genre">
+          Genre *
+          <span class="char-count" [class.over-limit]="f['genre'].value?.length > 50">
+            {{ f['genre'].value?.length || 0 }}/50
+          </span>
+        </label>
+        <div class="input-with-suggestions">
+          <input
+            type="text"
+            id="genre"
+            formControlName="genre"
+            placeholder="Enter genre or select from suggestions"
+            class="form-control"
+            [class.is-invalid]="f['genre'].invalid && (f['genre'].touched || isSubmitted)"
+            aria-describedby="genreHelp genreErrors genreSuggestions"
+            list="genreSuggestions"
+          >
+          
+          <!-- Genre Suggestions -->
+          <div class="suggestions-container" *ngIf="commonGenres.length > 0">
+            <p class="suggestions-label">Quick select:</p>
+            <div class="suggestions-tags">
+              <button
+                type="button"
+                *ngFor="let genre of commonGenres"
+                (click)="selectGenre(genre)"
+                class="genre-tag"
+                [class.selected]="f['genre'].value === genre"
+                [title]="'Select ' + genre"
+              >
+                {{ genre }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <small id="genreHelp" class="form-text">Book category or genre (2-50 characters)</small>
+        
+        <div *ngIf="getFieldErrors('genre').length > 0" id="genreErrors" class="error-messages">
+          <div *ngFor="let error of getFieldErrors('genre')" class="error-message">
+            ⚠️ {{ error }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Published Year Field -->
+      <div class="form-group" [class.has-error]="f['publishedYear'].invalid && (f['publishedYear'].touched || isSubmitted)">
+        <label for="publishedYear">
+          Published Year *
+        </label>
+        <input
+          type="number"
+          id="publishedYear"
+          formControlName="publishedYear"
+          placeholder="YYYY"
+          class="form-control"
+          [class.is-invalid]="f['publishedYear'].invalid && (f['publishedYear'].touched || isSubmitted)"
+          min="1000"
+          [max]="currentYear"
+          aria-describedby="yearHelp yearErrors"
+        >
+        <small id="yearHelp" class="form-text">4-digit year (1000 - {{ currentYear }})</small>
+        
+        <div *ngIf="getFieldErrors('publishedYear').length > 0" id="yearErrors" class="error-messages">
+          <div *ngFor="let error of getFieldErrors('publishedYear')" class="error-message">
+            ⚠️ {{ error }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          (click)="onReset()"
+          class="btn btn-secondary"
+          [disabled]="isLoading"
+        >
+          <i class="icon-reset">🔄</i> Clear Form
+        </button>
+        
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="btn btn-outline"
+          [disabled]="isLoading"
+        >
+          <i class="icon-cancel">✕</i> Cancel
+        </button>
+        
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isLoading || bookForm.invalid"
+        >
+          <i class="icon-save">💾</i>
+          {{ isLoading ? 'Creating...' : 'Create Book' }}
+          <span *ngIf="isLoading" class="spinner-small"></span>
+        </button>
+      </div>
+
+      <!-- Form Status -->
+      <div class="form-status" *ngIf="isSubmitted">
+        <div *ngIf="bookForm.invalid" class="status-error">
+          ⚠️ Please fix the errors above before submitting.
+        </div>
+        <div *ngIf="bookForm.valid && !isLoading" class="status-ready">
+          ✓ All fields are valid. Ready to submit!
+        </div>
+      </div>
+    </form>
+
+    <!-- Preview Section -->
+    <div class="preview-section" *ngIf="bookForm.value.title || bookForm.value.author">
+      <h3>📄 Preview</h3>
+      <div class="preview-card">
+        <div class="preview-header">
+          <h4>{{ bookForm.value.title || '[Book Title]' }}</h4>
+          <span class="preview-year">{{ bookForm.value.publishedYear || 'YYYY' }}</span>
+        </div>
+        <div class="preview-body">
+          <p><strong>Author:</strong> {{ bookForm.value.author || '[Author Name]' }}</p>
+          <p><strong>Genre:</strong> 
+            <span class="preview-genre" *ngIf="bookForm.value.genre">{{ bookForm.value.genre }}</span>
+            <span *ngIf="!bookForm.value.genre">[Genre]</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

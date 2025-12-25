@@ -1,0 +1,17 @@
+<h3>Books published after 2020</h3>
+
+<ul>
+  @for (book of books; track book.name) {
+    @if (book.year > 2020) {
+      <li>
+       {{ book.name | bookName }} ({{ book.year }})
+      </li>
+    }
+    @else {
+        <span>les books sup a 2020 </span>
+    }
+  }
+   @empty{
+        <li> no book availible </li>
+    }
+</ul>

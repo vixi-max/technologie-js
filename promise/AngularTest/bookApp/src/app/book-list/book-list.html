@@ -1,0 +1,84 @@
+<div class="book-list-container">
+  <div class="header">
+    <h2>📚 Book Library</h2>
+    <a routerLink="/books/create" class="btn btn-primary">
+      <i class="icon-plus"></i> Add New Book
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading books...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && errorMessage" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <p>{{ errorMessage }}</p>
+    <button (click)="loadBooks()" class="btn btn-retry">Retry</button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !errorMessage && books.length === 0" class="empty-container">
+    <div class="empty-icon">📖</div>
+    <h3>No books found</h3>
+    <p>Start by adding your first book to the library!</p>
+    <a routerLink="/books/create" class="btn btn-primary">Add Your First Book</a>
+  </div>
+
+  <!-- Books Table -->
+  <div *ngIf="!isLoading && !errorMessage && books.length > 0" class="books-table-container">
+    <div class="table-responsive">
+      <table class="books-table">
+        <thead>
+          <tr>
+            <th class="title-col">Title</th>
+            <th class="author-col">Author</th>
+            <th class="genre-col">Genre</th>
+            <th class="year-col">Year</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let book of books; trackBy: trackByBookId" class="book-row">
+            <td class="title-cell">
+              <strong>{{ book.title }}</strong>
+            </td>
+            <td class="author-cell">
+              {{ book.author }}
+            </td>
+            <td class="genre-cell">
+              <span class="genre-tag">{{ book.genre }}</span>
+            </td>
+            <td class="year-cell">
+              {{ book.publishedYear }}
+            </td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <a 
+                  [routerLink]="['/books/edit', book.id]" 
+                  class="btn btn-edit"
+                  title="Edit book"
+                >
+                  <i class="icon-edit"></i> Edit
+                </a>
+                <button 
+                  (click)="deleteBook(book.id!)" 
+                  class="btn btn-delete"
+                  title="Delete book"
+                >
+                  <i class="icon-delete"></i> Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stats-footer">
+      <p>Total books: <span class="count-badge">{{ books.length }}</span></p>
+    </div>
+  </div>
+</div>
